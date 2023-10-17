@@ -3,16 +3,18 @@
  * Here is the overview on how this component works:
  * 
  * ### UPON LOAD ###
- * - if (!props.isOpen) return null;
+ * - if (!props.isOpen) return null
  * Modal wont be displayed unless isOpen turns to be true.
  * - function onInteract()...
  * Modal will finish loading its final state whenever the user starts interacting to it. 
  * This, to prevent locking all elements from being accessible. See modalSlice.ts
 */
 
-import React from 'react';
+import React, { useEffect, useState } from 'react'
 import Button from '../Button/Button'
 import style from './modal.module.scss'
+import { focusComponent } from '../../../utils/focus-element/focusElement'
+import { IPCSend } from '../../../utils/electron/ipc-renderer/ipc-send'
 
 interface ModalProps {
     modalTitle: string
@@ -34,14 +36,30 @@ interface ModalProps {
  * @returns Modal, Actions
 */
 export default function Modal(props: ModalProps) {
-    if (!props.isOpen) return null;
+    // const [isLoading, setIsLoading] = useState(true)
 
-    const childArray = React.Children.toArray(props.children);
-    const selectedChild = childArray[props.selectInterface];   
-    // console.log(Object.values(selectedChild)[2]);
+    // useEffect(() => {
+    //     if (ComponentID.modal) {
+    //         focusComponent('modalInterface')
+    //         IPCSend.log.debug('Modal Component Mounted.')
+    //     }
+    // }, [isLoading])
+
+    // useEffect(() => {
+    //     setIsLoading(false)
+    // }, [])
+
+    if (!props.isOpen) return null
+
+    const childArray = React.Children.toArray(props.children)
+    const selectedChild = childArray[props.selectInterface]   
 
     function onInteract() {
-        document.body.classList.remove('disable-events');
+        IPCSend.log.debug('Modal Component Mounted')
+        document.body.classList.remove('disable-events')
+        setTimeout(() => {
+            focusComponent('modalInterface')
+        },1)
     }
 
     return (
@@ -56,11 +74,11 @@ export default function Modal(props: ModalProps) {
                     {selectedChild}
                 </div>
                 <div className={style.modalAction}>
-                    <Button classItem='primary'>Hello World</Button>
+                    <Button id='modalInterface' classItem='primary'>Hello World</Button>
                 </div>
             </div>
 
             <div className={style.modalBackground} onClick={props.onClose} />
         </div>
-    );
+    )
 }

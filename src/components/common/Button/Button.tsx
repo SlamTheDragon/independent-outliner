@@ -1,7 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import style from './button.module.scss'
 
 interface ButtonInterface {
     classItem?: string               // define class extension in index.scss
+    id?: string               // define class extension in index.scss
     children?: React.ReactNode
     disabled?: boolean
     tabIndex?: number
@@ -41,6 +43,7 @@ export default function Button(props: ButtonInterface) {
             className={`${style.btn} ` + props.classItem}
             onClick={props.onClick}
             title={props.titleTooltip}
+            id={props.id}
         >
             {props.children}
         </button>

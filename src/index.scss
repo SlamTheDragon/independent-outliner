@@ -393,10 +393,11 @@ body {
 	@include mar-pad(0, 0);
 	@include wight(100vw, 100vh);
 
-	font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+	font-family: "Segoe UI", "Poppins";
 	color: $color;
 	background-color: $background-color;
 	overflow: hidden;
+	overflow-y: scroll;
 }
 
 a {
@@ -451,7 +452,7 @@ $_track: $background-color;
 
 	&::-webkit-scrollbar {
 		width: 15px;
-		width: 0px;
+		width: 10px;
 	}
 	&::-webkit-scrollbar-track {
 		background: $_track;

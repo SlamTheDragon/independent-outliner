@@ -18,16 +18,8 @@ rules.push(
     use: ["style-loader", "css-loader", "sass-loader",],
   },
   {
-    test: /\.(png|jpg)$/,
-    use: [
-      {
-        loader: 'file-loader',
-        options: {
-          name: '[name].[ext]',
-          outputPath: 'assets/',
-        },
-      },
-    ],
+    test: /\.svg$/,
+    use: ['@svgr/webpack'],
   },
 );
 
@@ -37,6 +29,6 @@ export const rendererConfig: Configuration = {
   },
   plugins,
   resolve: {
-    extensions: ['.js', '.ts', '.jsx', '.tsx', '.css', '.scss', '.png', '.jpg'], // Add .scss extension
+    extensions: ['.js', '.ts', '.jsx', '.tsx', '.css', '.scss',],
   },
 };

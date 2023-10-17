@@ -1,4 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
+import { ComponentRegistration } from '../../../utils/keybinding/keybinds'
+import { ComponentID } from '../../../utils/keybinding/dictionary'
+
 
 export const modalSlice = createSlice({
     name: 'modal',
@@ -9,19 +12,20 @@ export const modalSlice = createSlice({
         openModal: (state) => {
             state.value = true
 
-            document.body.classList.add('disable-events');
-            const outsideElements = document.querySelectorAll('button, div, a'); // perhaps turn this into an array? | make this unnecessarily complicated? xd
+            ComponentRegistration.set(ComponentID.modal)
+            document.body.classList.add('disable-events')
+            const outsideElements = document.querySelectorAll('button, div, a') // perhaps turn this into an array? | make this unnecessarily complicated? xd
             outsideElements.forEach((element) => {
-                element.setAttribute('tabindex', '-1');
-            });
+                element.setAttribute('tabindex', '-1')
+            })
         },
         closeModal: (state) => {
             state.value = false
 
-            const outsideElements = document.querySelectorAll('button, div, a');
+            const outsideElements = document.querySelectorAll('button, div, a')
             outsideElements.forEach((element) => {
-                element.removeAttribute('tabindex');
-            });
+                element.removeAttribute('tabindex')
+            })
         }
     },
 })

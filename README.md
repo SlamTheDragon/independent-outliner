@@ -1,7 +1,7 @@
-# slam-electron-template
+# Independent Outliner
 
-Slam's Electron Desktop Template
+A desktop application capable of managing your daily tasks presented in a unique way.
 
 ## Development
 
-Either use either yarn or npm to install `node_modules`.
+- Use either yarn or npm to install `node_modules`.

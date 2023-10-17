@@ -1,17 +1,41 @@
-import { useDispatch, useSelector } from "react-redux";
-import { closeModal, modalState } from "./components/slice/modal-slices/modalSlice";
-import { readHeader } from "./components/slice/modal-slices/modalHeaderSlice";
-import { readModalInterface } from "./components/slice/modal-slices/modalInterfaceSlice";
-import Interface from "./components/.Interface/Interface";
-import Modal from "./components/common/Modal";
-import Sample1 from "./components/widgets/modal-contents/SsampleContentA";
-import DefaultModal from "./components/widgets/modal-contents/DefaulModal";
-import Sample2 from "./components/widgets/modal-contents/SsampleContentB";
-import Sample3 from "./components/widgets/modal-contents/SsampleContentC";
+import { useEffect, useState } from "react"
+import { useDispatch, useSelector } from "react-redux"
+import { closeModal, modalState } from "./components/slice/modal-slices/modalSlice"
+import { readHeader } from "./components/slice/modal-slices/modalHeaderSlice"
+import { readModalInterface } from "./components/slice/modal-slices/modalInterfaceSlice"
+import { BrowserRouter, Route, Routes } from "react-router-dom"
+import { IPCSend } from "./utils/electron/ipc-renderer/ipc-send"
+import { ComponentRegistration, Keybinds } from "./utils/keybinding/keybinds"
+import { BindFunctionDictionary, ComponentID } from "./utils/keybinding/dictionary"
+
+import DefaultModal from "./components/widgets/modal-contents/DefaultModal"
+import Modal from "./components/common/Modal"
+import Sample1 from "./components/widgets/modal-contents/SampleContentA"
+import Sample2 from "./components/widgets/modal-contents/SampleContentB"
+import Sample3 from "./components/widgets/modal-contents/SampleContentC"
+
+import Home from "./pages/Home"
+import Fallback from "./pages/fallback"
 
 
 function App() {
 	/***************[ INITIALIZERS ]**************/
+	const [isLoading, setIsLoading] = useState(true)
+
+	useEffect(() => {
+		if (!isLoading) {
+			// Initialize
+			document.addEventListener('keydown', watchKeys)
+			document.addEventListener('keyup', registerKeyCombination)
+			ComponentRegistration.set(ComponentID.default)
+			IPCSend.log.info('Renderer loaded, Keybindings registered.')
+		}
+	}, [isLoading])
+
+	useEffect(() => {
+		setIsLoading(false)
+	}, [])
+
 
 	// Redux get
 	// ...
@@ -22,18 +46,45 @@ function App() {
 	// Redux set
 	const dispatch = useDispatch()
 
-	// Initialize
-	document.addEventListener('keydown', handleEscapeKeyPress);
+	/***************[ EVENT DISPATCHERS ]**************/
+	function dispatchKeyFunctions(selector: BindFunctionDictionary) {
+		// const renderer = Hooks()
 
+		switch (selector) {
+			case BindFunctionDictionary.closeModal:
+				dispatch(closeModal())
+				break
 
-	/***************[ SURFACE FUNCTIONS ]**************/
-	function handleEscapeKeyPress(event: KeyboardEvent) {
-		if (event.key === 'Escape') {
-			dispatch(closeModal())
+			default:
+				break
 		}
 	}
 
-	
+	/***************[ KEYBIND FUNCTIONS ]**************/
+	function watchKeys(e: KeyboardEvent) {
+		Keybinds.watch(e)
+	}
+
+	function registerKeyCombination(e: KeyboardEvent) {
+
+		const combinationSnapshot = Keybinds.registerSnapshot()
+
+		if (e.key.toUpperCase() === "CONTROL") {
+			Keybinds.releaseModifiers("CONTROL")
+		}
+		if (e.key.toUpperCase() === "ALT") {
+			Keybinds.releaseModifiers("ALT")
+		}
+		if (e.key.toUpperCase() === "SHIFT") {
+			Keybinds.releaseModifiers("SHIFT")
+		}
+
+		if (combinationSnapshot !== undefined) {
+			dispatchKeyFunctions(Keybinds.keyFunctions(combinationSnapshot, ComponentRegistration.get))
+		}
+	}
+
+
 	return (
 		<>
 			<Modal
@@ -62,9 +113,15 @@ function App() {
 				<Sample2 key={2} />
 				<Sample3 key={3} />
 			</Modal>
-			<Interface/>
+
+			<BrowserRouter>
+				<Routes>
+					<Route path="*" element={<Home />} />
+					<Route path="/error" element={<Fallback />} />
+				</Routes>
+			</BrowserRouter>
 		</>
-	);
+	)
 }
 
-export default App;
+export default App
