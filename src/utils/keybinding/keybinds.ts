@@ -4,10 +4,12 @@
 import { IPCSend } from "../electron/ipc-renderer/ipc-send"
 import { ComponentID } from "./dictionary"
 import { ModalBindDefinitions } from "./component-bindings/modal-binding"
+import { DefaultBindDefinitions } from "./component-bindings/default-binding"
 
 
 /**
- * ComponentRegistration class for managing the active component identification.
+ * ComponentRegistration class for managing the active components that the user is currently on.
+ * (probably implemented incorrectly but it works)
  */
 export class ComponentRegistration {
     /**
@@ -39,32 +41,43 @@ export class Keybinds {
 
     /**
      * Watches for keydown events and captures key combinations.
-     * @param e - The keyboard event object.
+     * @param keys - The keyboard event object.
      */
-    public static watch(e: KeyboardEvent) {
+    public static watch(keys: KeyboardEvent) {
         // Return if the keys are repeating
-        if (e.repeat) return
+        if (keys.repeat) return
 
-        for (const key of this._accumulator) {
-            if (key === e.key) {
-                return
-            }
+        // Stop key duplication just in case by iterating to the entire list (even though this method
+        // stops working after a key release... maybe remove?)
+        for (const contents of this._accumulator) {
+            if (contents === keys.key) { return }
         }
 
-        if (e.key.toUpperCase() === "CONTROL") {
+        // Booleans for special modifier keys
+        if (keys.key.toUpperCase() === "CONTROL") {
             this._modifierCTRL = true
             return
         }
-        if (e.key.toUpperCase() === "ALT") {
+        if (keys.key.toUpperCase() === "ALT") {
             this._modifierALT = true
             return
         }
-        if (e.key.toUpperCase() === "SHIFT") {
+        if (keys.key.toUpperCase() === "SHIFT") {
             this._modifierSHIFT = true
             return
         }
 
-        this._accumulator.push(e.key.toUpperCase())
+        // push the sequence of keystrokes into memory
+        this._accumulator.push(keyCorrection())
+
+        // Correction since we're using string (might change in the later future)
+        function keyCorrection() {
+            if (keys.key === " ") {
+                return "SPACE"
+            } else {
+                return keys.key.toUpperCase()
+            }
+        }
     }
 
     /**
@@ -75,6 +88,8 @@ export class Keybinds {
         // Filter if accumulator is empty
         const compareIfEmpty: any[] = []
 
+        // Using the first key in array to check if the accumulator is empty since it doesn't work without it...
+        // for... some reason :3c
         if (this._accumulator[0] !== compareIfEmpty[0]) {
             IPCSend.log.verbose(`[KEYBIND HANDLER] [CTRL:${this._modifierCTRL.toString().toUpperCase()} ALT:${this._modifierALT.toString().toUpperCase()} SHIFT:${this._modifierSHIFT.toString().toUpperCase()}] For Key: ${this._accumulator}`)
             this._registerKeys = this._accumulator
@@ -90,12 +105,24 @@ export class Keybinds {
      * @returns The result of evaluating key combinations.
      */
     public static keyFunctions(bindsToCompare: string[], componentContext: ComponentID) {
+
+
         const modalBinds = new ModalBindDefinitions(
             // FIXME: Define these binds and make their binding definition somewhere where a user can assign custom for certain actions.
             ["ESCAPE"]
         )
+        const defaultBinds = new DefaultBindDefinitions(
+            ["F12"]
+        )
+        
+        // declare an evaluation entry point to be evaluated by the
+        // FIXME: we have a problem here. See "layering" in "./src/pages/Home/Home.tsx"
+
+        // if the default keybindings is meant to be globally available then
 
         switch (componentContext) {
+            case ComponentID.default:
+                return defaultBinds.evalKeys(bindsToCompare)
             case ComponentID.modal:
                 return modalBinds.evalKeys(bindsToCompare)
 

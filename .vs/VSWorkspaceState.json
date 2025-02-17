@@ -1,0 +1,10 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\src",
+    "\\src\\utils",
+    "\\src\\utils\\electron"
+  ],
+  "SelectedNode": "\\src\\utils\\electron\\ipc-channel-dictionary.ts",
+  "PreviewInSolutionExplorer": false
+}

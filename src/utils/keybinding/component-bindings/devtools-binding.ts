@@ -11,10 +11,11 @@ export class DefaultBindDefinitions implements ComponentBindings {
     }
 
     evalKeys(bindsToCompare: string[]) {
-        // - we have to define the length of the keyArray
-        // - decode keybinds that contains sub keys for key combinations
-        // - compare em to all existing functions that's connected into this class
-        // - add extra layer of suppression for comparison if theres a different component mounted
+        // for (const iterator of this.keyArray) {
+        //     if (iterator === bindsToCompare[0]) {
+        //         return BindFunctionDictionary.closeModal
+        //     }
+        // }
 
         if (bindsToCompare[0] === this.keyArray[0]) {
             IPCSend.log.debug("bind triggered")

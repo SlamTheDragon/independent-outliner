@@ -6,7 +6,7 @@ import { readModalInterface } from "./components/slice/modal-slices/modalInterfa
 import { BrowserRouter, Route, Routes } from "react-router-dom"
 import { IPCSend } from "./utils/electron/ipc-renderer/ipc-send"
 import { ComponentRegistration, Keybinds } from "./utils/keybinding/keybinds"
-import { BindFunctionDictionary, ComponentID } from "./utils/keybinding/dictionary"
+import { BindFunctionDictionary } from "./utils/keybinding/dictionary"
 
 import DefaultModal from "./components/widgets/modal-contents/DefaultModal"
 import Modal from "./components/common/Modal"
@@ -27,7 +27,7 @@ function App() {
 			// Initialize
 			document.addEventListener('keydown', watchKeys)
 			document.addEventListener('keyup', registerKeyCombination)
-			ComponentRegistration.set(ComponentID.default)
+			// ComponentRegistration.set(ComponentID.default)
 			IPCSend.log.info('Renderer loaded, Keybindings registered.')
 		}
 	}, [isLoading])
@@ -54,6 +54,9 @@ function App() {
 			case BindFunctionDictionary.closeModal:
 				dispatch(closeModal())
 				break
+			case BindFunctionDictionary.devtools:
+				IPCSend.window.openDevTools()
+				break
 
 			default:
 				break
@@ -61,8 +64,8 @@ function App() {
 	}
 
 	/***************[ KEYBIND FUNCTIONS ]**************/
-	function watchKeys(e: KeyboardEvent) {
-		Keybinds.watch(e)
+	function watchKeys(keys: KeyboardEvent) {
+		Keybinds.watch(keys)
 	}
 
 	function registerKeyCombination(e: KeyboardEvent) {

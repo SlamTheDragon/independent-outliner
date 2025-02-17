@@ -1,7 +1,8 @@
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, Menu } from 'electron'
 import { Logging } from './logging/logging'
-import './ipc-main/ipc-on'
 import { Shutdown } from './shutdown'
+import './ipc-main/ipc-on'
+
 
 const logging = new Logging('main')
 logging.info('### STARTING INDEPENDENT OUTLINER ###')
@@ -14,30 +15,135 @@ declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const foo = new Shutdown(0)
-    // app.quit()
 }
 
+// Create the main browser window.
+export let mainWindow: BrowserWindow
+
 const createWindow = (): void => {
-    // Create the browser window.
-    const mainWindow = new BrowserWindow({
+    mainWindow = new BrowserWindow({
         width: 1200,
         height: 750,
-        center: true,
+        // center: true,
         webPreferences: {
             preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
         },
     })
-
     // and load the index.html of the app.
-    mainWindow.setMenu(null)
-    mainWindow.setMenuBarVisibility(false)
+    // mainWindow.setMenu(null)
+    // Menu.setApplicationMenu(menu)
+    mainWindow.setMenu(menu)
+    mainWindow.setMenuBarVisibility(true)
     mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY)
 
-    // Open the DevTools.
-    mainWindow.webContents.openDevTools()
-    logging.info('window configurations registered')
+    logging.info('window configurations loaded')
 }
+
+// Menu
+const menu = Menu.buildFromTemplate([
+    // { role: 'appMenu' }
+    // ...(isMac
+    //     ? [{
+    //         label: app.name,
+    //         submenu: [
+    //             { role: 'about' },
+    //             { type: 'separator' },
+    //             { role: 'services' },
+    //             { type: 'separator' },
+    //             { role: 'hide' },
+    //             { role: 'hideOthers' },
+    //             { role: 'unhide' },
+    //             { type: 'separator' },
+    //             { role: 'quit' }
+    //         ]
+    //     }]
+    //     : []),
+    // { role: 'fileMenu' }
+    {
+        label: 'File',
+        submenu: [
+            { role: 'close' },
+        ]
+    },
+    // { role: 'editMenu' }
+    {
+        label: 'Edit',
+        submenu: [
+            { role: 'undo' },
+            { role: 'redo' },
+            { type: 'separator' },
+            { role: 'cut' },
+            { role: 'copy' },
+            { role: 'paste' },
+            // ...(isMac
+            //     ? [
+            //         { role: 'pasteAndMatchStyle' },
+            //         { role: 'delete' },
+            //         { role: 'selectAll' },
+            //         { type: 'separator' },
+            //         {
+            //             label: 'Speech',
+            //             submenu: [
+            //                 { role: 'startSpeaking' },
+            //                 { role: 'stopSpeaking' }
+            //             ]
+            //         }
+            //     ]
+            //     : [
+            //         { role: 'delete' },
+            //         { type: 'separator' },
+            //         { role: 'selectAll' }
+            //     ])
+        ]
+    },
+    // { role: 'viewMenu' }
+    {
+        label: 'View',
+        submenu: [
+            { role: 'reload' },
+            { role: 'forceReload' },
+            { role: 'toggleDevTools' },
+            { type: 'separator' },
+            { role: 'resetZoom' },
+            { role: 'zoomIn' },
+            { role: 'zoomOut' },
+            { type: 'separator' },
+            { role: 'togglefullscreen' }
+        ]
+    },
+    // { role: 'windowMenu' }
+    {
+        label: 'Window',
+        submenu: [
+            { role: 'minimize' },
+            { role: 'zoom' },
+            // ...(isMac
+            //     ? [
+            //         { type: 'separator' },
+            //         { role: 'front' },
+            //         { type: 'separator' },
+            //         { role: 'window' }
+            //     ]
+            //     : [
+            //         { role: 'close' }
+            //     ])
+        ]
+    },
+    // {
+    //     role: 'help',
+    //     submenu: [
+    //         {
+    //             label: 'Learn More',
+    //             click: async () => {
+    //                 const { shell } = require('electron')
+    //                 await shell.openExternal('https://electronjs.org')
+    //             }
+    //         }
+    //     ]
+    // }
+])
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -52,11 +158,12 @@ app.on('ready', () => {
 // explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
-        // app.quit()
         return new Shutdown(0)
     }
 })
 
+
+// OS X
 app.on('activate', () => {
     // On OS X it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.

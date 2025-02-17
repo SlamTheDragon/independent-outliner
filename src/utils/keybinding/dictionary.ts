@@ -7,7 +7,11 @@ export enum BindFunctionDictionary {
     /**
      * Function Definition to close a modal.
      */
-    closeModal
+    closeModal,
+    /**
+     * Function Definition to open browser developer tools.
+     */
+    devtools,
     // ...
 }
 

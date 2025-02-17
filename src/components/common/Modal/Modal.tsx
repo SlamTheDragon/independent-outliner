@@ -15,6 +15,8 @@ import Button from '../Button/Button'
 import style from './modal.module.scss'
 import { focusComponent } from '../../../utils/focus-element/focusElement'
 import { IPCSend } from '../../../utils/electron/ipc-renderer/ipc-send'
+import { ComponentRegistration } from '../../../utils/keybinding/keybinds'
+import { ComponentID } from '../../../utils/keybinding/dictionary'
 
 interface ModalProps {
     modalTitle: string
@@ -51,19 +53,28 @@ export default function Modal(props: ModalProps) {
 
     if (!props.isOpen) return null
 
+    const [isLoading, setIsLoading] = useState(true)
+
+    useEffect(() => {
+        if (!isLoading) {
+            ComponentRegistration.set(ComponentID.modal)
+            IPCSend.log.debug('Modal Component Mounted')
+            document.body.classList.remove('disable-events')
+            setTimeout(() => {
+                focusComponent('modalInterface')
+            }, 10)
+        }
+    }, [isLoading])
+
+    useEffect(() => {
+        setIsLoading(false)
+    }, [])
+
     const childArray = React.Children.toArray(props.children)
     const selectedChild = childArray[props.selectInterface]   
 
-    function onInteract() {
-        IPCSend.log.debug('Modal Component Mounted')
-        document.body.classList.remove('disable-events')
-        setTimeout(() => {
-            focusComponent('modalInterface')
-        },1)
-    }
-
     return (
-        <div className={style.modal} onMouseEnter={onInteract}>
+        <div className={style.modal}>
             
             <div className={style.modalWrapper}>
                 <div className={style.modalHeader}>

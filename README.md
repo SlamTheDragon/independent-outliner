@@ -4,4 +4,4 @@ A desktop application capable of managing your daily tasks presented in a unique
 
 ## Development
 
-- Use either yarn or npm to install `node_modules`.
+- You can use npm, yarn, or pnpm to install the required dependencies.

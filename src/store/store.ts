@@ -1,3 +1,4 @@
+/* eslint-disable import/no-named-as-default */
 import { configureStore } from "@reduxjs/toolkit";
 import counterReducer from "../components/slice/counterSlice"
 import modalReducer from "../components/slice/modal-slices/modalSlice"

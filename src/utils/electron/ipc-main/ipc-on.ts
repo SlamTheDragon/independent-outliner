@@ -1,46 +1,64 @@
 import { ipcMain } from 'electron';
-import { IPCChannelList, IPCChannel } from '../ipc-channel-dictionary';
+import { IPCChannels, IPCChannelFunction } from '../ipc-renderer/ipc-channel-dictionary';
 import { Logging } from '../logging/logging';
 import { Shutdown } from '../shutdown';
+import { mainWindow } from '..';
 
-
-ipcMain.on(IPCChannelList.master, async (event, ...args) => {
+/**
+ * Handles IPC events from the master renderer process.
+ * @param event - The event object.
+ * @param args - Arguments received from the renderer process.
+ */
+ipcMain.on(IPCChannels.master, async (event, ...args) => {
     const logging = new Logging('ipc main')
 
     switch (args[0]) {
-        case IPCChannel.master.unexpectedQuit():
-            logging.info('hmmm')
+        case IPCChannelFunction.master.unexpectedQuit():
+            logging.info('Received unexpected quit signal.')
             break
 
         default:
-            logging.warn('something went wrong: default was selected')
+            logging.warn('Something went wrong: default case was selected.')
             break
     }
 })
 
-ipcMain.on(IPCChannelList.window, (event, ...args) => {
+/**
+ * Handles IPC events related to window actions.
+ * @param event - The event object.
+ * @param args - Arguments received from the renderer process.
+ */
+ipcMain.on(IPCChannels.window, (event, ...args) => {
     const logging = new Logging('ipc window')
 
     switch (args[0]) {
-        case IPCChannel.window.fullscreen():
-            logging.debug('fullscreen')
+        case IPCChannelFunction.window.fullscreen():
+            logging.debug('Received request for fullscreen.')
             break
-        
-        case IPCChannel.window.exit():
+
+        case IPCChannelFunction.window.exit():
             return new Shutdown(0)
 
-        case IPCChannel.window.toTray():
-            logging.debug('tray')
+        case IPCChannelFunction.window.toTray():
+            logging.debug('Received request to send to tray.')
             break
 
-        
+        case IPCChannelFunction.window.openDevTools():
+            mainWindow.webContents.openDevTools()
+            break
+
         default:
-            logging.warn('something went wrong: default was selected')
+            logging.warn('Something went wrong: default case was selected.')
             break
     }
 })
 
-ipcMain.on(IPCChannelList.log, async (event, args) => {
+/**
+ * Handles IPC events related to logging messages.
+ * @param event - The event object.
+ * @param args - Arguments received from the renderer process.
+ */
+ipcMain.on(IPCChannels.log, async (event, args) => {
     const logging = new Logging('renderer')
 
     switch (args[0]) {
@@ -64,7 +82,7 @@ ipcMain.on(IPCChannelList.log, async (event, args) => {
             break
 
         default:
-            logging.warn('something went wrong: default was selected')
+            logging.warn('Something went wrong: default case was selected.')
             break
     }
 })

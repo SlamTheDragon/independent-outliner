@@ -8,12 +8,15 @@ import colors from 'colors/safe'
  * Logging class for handling application logs.
  */
 export class Logging {
+    //#region Variables
     private _origin: string
     private static _verbose = true
     private static _debug = true
     private static _initialized = false
     private logFileStream: fs.WriteStream
+    //#endregion
 
+    //#region Constructor
     /**
      * Creates a new instance of the Logging class.
      * @param origin - The origin of the logging instance.
@@ -21,12 +24,14 @@ export class Logging {
     constructor(origin: any) {
         this._origin = origin.toUpperCase()
 
+        // constructor vars
         const latestLogFolder = path.join(process.env.APPDATA, 'Independent Outliner', 'logs') //appdata\IO\logs
         const oldLogsFolder = path.join(latestLogFolder, 'old') //...IO\logs\old
-
+        
         const logFilePath = path.join(latestLogFolder, 'latest.log') // ...\IO\logs\latest.log
         const archivedLogPath = path.join(oldLogsFolder, `${this.formatDateTime(false)}.log`)
-
+        
+        // pre-initialize logging
         if (!Logging._initialized) {
             try {
                 fs.copyFile(logFilePath, archivedLogPath, fs.constants.COPYFILE_EXCL, callback)
@@ -46,12 +51,15 @@ export class Logging {
             fs.mkdirSync(oldLogsFolder, { recursive: true })
         }
 
-        // TODO:
+        // TODO: do something when pre-initialization failed
         function callback() { }
 
+        // initialize logging
         this.logFileStream = fs.createWriteStream(logFilePath, { flags: 'a' })
     }
+    //#endregion
 
+    //#region DateFormatter
     /**
      * Formats the current date and time for logging purposes.
      * @param isForFile - Indicates if the format is for file naming.
@@ -72,7 +80,9 @@ export class Logging {
 
         return `${year}-${month}-${day}_${hours}${minutes}${seconds}`
     }
+    //#endregion
 
+    //#region logging
     /**
      * Logs a message to the log file and console with VERBOSE level.
      * @param message - The message to be logged.
@@ -83,7 +93,6 @@ export class Logging {
             console.log(`${colors.gray(this.formatDateTime(true))} ${colors.green(`[VERBOSE] [${this._origin}]`)}`, message)
         }
     }
-
     /**
      * Logs a message to the log file and console with DEBUG level.
      * @param message - The message to be logged.
@@ -94,7 +103,6 @@ export class Logging {
             console.debug(`${colors.gray(this.formatDateTime(true))} ${colors.cyan(`[DEBUG] [${this._origin}]`)}`, message)
         }
     }
-
     /**
      * Logs an informational message to the log file and console.
      * @param message - The message to be logged.
@@ -103,7 +111,6 @@ export class Logging {
         this.logToFile(`[INFO]`, message)
         console.info(`${colors.gray(this.formatDateTime(true))} ${colors.white(`[INFO] [${this._origin}]`)}`, message)
     }
-
     /**
      * Logs a warning message to the log file and console.
      * @param message - The message to be logged.
@@ -112,7 +119,6 @@ export class Logging {
         this.logToFile(`[WARN]`, message)
         console.warn(`${colors.gray(this.formatDateTime(true))} ${colors.yellow(`[WARN] [${this._origin}]`)}`, message)
     }
-
     /**
      * Logs an error message to the log file and console.
      * @param message - The message to be logged.
@@ -121,7 +127,6 @@ export class Logging {
         this.logToFile(`[ERROR]`, message)
         console.error(`${colors.gray(this.formatDateTime(true))} ${colors.red(`[ERROR] [${this._origin}]`)}`, message)
     }
-
     /**
      * Logs a fatal error message to the log file and console.
      * @param message - The message to be logged.
@@ -130,6 +135,7 @@ export class Logging {
         this.logToFile(`[FATAL]`, message)
         console.error(`${colors.gray(this.formatDateTime(true))} ${colors.bgRed(`[FATAL] [${this._origin}]`)}`, message)
     }
+    //#endregion
 
     /**
      * Logs a message to the log file.
