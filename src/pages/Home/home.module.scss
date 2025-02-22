@@ -1,8 +1,0 @@
-@import "../../index.scss";
-
-.interface {
-	@include flex-center();
-	@include wight(100vw, 100vh);
-
-	flex-direction: column;
-}

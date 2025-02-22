@@ -1,9 +1,3 @@
 {
-    "cSpell.words": [
-        "endregion",
-        "KEYBIND",
-        "Keybinds",
-        "outliner",
-        "relocator"
-    ]
+    "cmake.sourceDirectory": "F:/.repo/independent_outliner/windows/flutter"
 }
